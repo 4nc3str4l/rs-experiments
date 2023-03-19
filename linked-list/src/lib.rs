@@ -34,55 +34,53 @@ impl<T: std::fmt::Display + std::cmp::PartialEq + Clone> LinkedList<T> {
     pub fn insert(&mut self, value: T, position: usize) {
         if self.size == 0 {
             self.head = Some(Box::new(Node { value, next: None }));
+        } else if position == 0 {
+            self.head = Some(Box::new(Node {
+                value,
+                next: Some(self.head.take().unwrap()),
+            }));
+        } else if position >= self.size {
+            self.add(value);
+            return;
         } else {
-            if position == 0 {
-                self.head = Some(Box::new(Node {
-                    value,
-                    next: Some(self.head.take().unwrap()),
-                }));
-            } else if position >= self.size {
-                self.add(value);
-                return;
-            } else {
-                let mut current = self.head.as_mut().unwrap();
-                let mut counter = 0;
-                while counter != (position - 1) {
-                    current = current.next.as_mut().unwrap();
-                    counter += 1;
-                }
-                current.next = Some(Box::new(Node {
-                    value,
-                    next: current.next.take(),
-                }));
+            let mut current = self.head.as_mut().unwrap();
+            let mut counter = 0;
+            while counter != (position - 1) {
+                current = current.next.as_mut().unwrap();
+                counter += 1;
             }
+            current.next = Some(Box::new(Node {
+                value,
+                next: current.next.take(),
+            }));
         }
+
         self.size += 1;
     }
 
     pub fn remove(&mut self, value: T) {
         if self.size == 0 {
             return;
-        } else {
-            let mut current = self.head.as_mut().unwrap();
-            if current.value == value {
-                if self.size > 1 {
-                    self.head = self.head.as_mut().unwrap().next.take();
-                } else {
-                    self.head = None;
-                }
-                self.size -= 1;
-                return;
+        }
+        let mut current = self.head.as_mut().unwrap();
+        if current.value == value {
+            if self.size > 1 {
+                self.head = self.head.as_mut().unwrap().next.take();
+            } else {
+                self.head = None;
             }
+            self.size -= 1;
+            return;
+        }
 
-            while current.next.is_some() {
-                let next = current.next.as_mut().unwrap();
-                if next.value == value {
-                    current.next = next.next.take();
-                    self.size -= 1;
-                    break;
-                } else {
-                    current = current.next.as_mut().unwrap();
-                }
+        while current.next.is_some() {
+            let next = current.next.as_mut().unwrap();
+            if next.value == value {
+                current.next = next.next.take();
+                self.size -= 1;
+                break;
+            } else {
+                current = current.next.as_mut().unwrap();
             }
         }
     }
@@ -90,29 +88,29 @@ impl<T: std::fmt::Display + std::cmp::PartialEq + Clone> LinkedList<T> {
     pub fn remove_at(&mut self, position: usize) {
         if self.size == 0 {
             return;
-        } else {
-            if position == 0 {
-                if self.size > 1 {
-                    self.head = self.head.as_mut().unwrap().next.take();
-                } else {
-                    self.head = None;
-                }
-                self.size -= 1;
-                return;
-            }
+        }
 
-            let mut current = self.head.as_mut().unwrap();
-            let mut idx = 1;
-            while current.next.is_some() {
-                let next = current.next.as_mut().unwrap();
-                if idx == position {
-                    current.next = next.next.take();
-                    self.size -= 1;
-                    break;
-                } else {
-                    current = current.next.as_mut().unwrap();
-                    idx += 1;
-                }
+        if position == 0 {
+            if self.size > 1 {
+                self.head = self.head.as_mut().unwrap().next.take();
+            } else {
+                self.head = None;
+            }
+            self.size -= 1;
+            return;
+        }
+
+        let mut current = self.head.as_mut().unwrap();
+        let mut idx = 1;
+        while current.next.is_some() {
+            let next = current.next.as_mut().unwrap();
+            if idx == position {
+                current.next = next.next.take();
+                self.size -= 1;
+                break;
+            } else {
+                current = current.next.as_mut().unwrap();
+                idx += 1;
             }
         }
     }
@@ -141,10 +139,7 @@ impl<T: std::fmt::Display + std::cmp::PartialEq + Clone> LinkedList<T> {
     }
 
     pub fn get_head(&self) -> Option<T> {
-        match &self.head {
-            Some(head) => Some(head.value.clone()),
-            None => None,
-        }
+        self.head.as_ref().map(|head| head.value.clone())
     }
 
     pub fn get_at(&self, position: usize) -> Option<T> {
@@ -160,7 +155,7 @@ impl<T: std::fmt::Display + std::cmp::PartialEq + Clone> LinkedList<T> {
             while current.next.is_some() {
                 let next = current.next.as_ref().unwrap();
                 if idx == position {
-                    return Some(next.value.clone())
+                    return Some(next.value.clone());
                 } else {
                     current = current.next.as_ref().unwrap();
                     idx += 1;
@@ -171,10 +166,10 @@ impl<T: std::fmt::Display + std::cmp::PartialEq + Clone> LinkedList<T> {
     }
 
     pub fn get_tail(&self) -> Option<T> {
-        if self.len() == 0 {
+        if self.is_empty() {
             return None;
         }
-        self.get_at(self.len() -1)
+        self.get_at(self.len() - 1)
     }
 
     pub fn clear(&mut self) {
@@ -186,7 +181,7 @@ impl<T: std::fmt::Display + std::cmp::PartialEq + Clone> LinkedList<T> {
         self.size
     }
 
-    pub fn empty(&self) -> bool {
+    pub fn is_empty(&self) -> bool {
         self.size == 0
     }
 }
@@ -207,5 +202,11 @@ impl<T: std::fmt::Display> fmt::Display for LinkedList<T> {
         }
 
         write!(f, "{}]", &out)
+    }
+}
+
+impl<T: std::fmt::Display + std::cmp::PartialEq + Clone> Default for LinkedList<T> {
+    fn default() -> Self {
+        Self::new()
     }
 }

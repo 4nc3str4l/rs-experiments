@@ -230,7 +230,7 @@ fn test_remove_at_n_elements_last() {
 }
 
 #[test]
-fn test_index_of_in_empty(){
+fn test_index_of_in_empty() {
     let mut list = LinkedList::<u32>::new();
     assert_eq!(list.index_of(1), None);
 }
@@ -254,7 +254,7 @@ fn test_index_of_last() {
 }
 
 #[test]
-fn test_index_of_middle () {
+fn test_index_of_middle() {
     let mut list = LinkedList::<u32>::new();
     for i in 0..5 {
         list.insert(i, i as usize);
@@ -263,7 +263,7 @@ fn test_index_of_middle () {
 }
 
 #[test]
-fn test_index_of_non_existent () {
+fn test_index_of_non_existent() {
     let mut list = LinkedList::<u32>::new();
     for i in 0..5 {
         list.insert(i, i as usize);
@@ -272,14 +272,14 @@ fn test_index_of_non_existent () {
 }
 
 #[test]
-fn test_index_of_non_existent_1_element () {
+fn test_index_of_non_existent_1_element() {
     let mut list = LinkedList::<u32>::new();
     list.add(1);
     assert_eq!(list.index_of(12), None);
 }
 
 #[test]
-fn test_index_of_existent_1_element () {
+fn test_index_of_existent_1_element() {
     let mut list = LinkedList::<u32>::new();
     list.add(1);
     assert_eq!(list.index_of(1).unwrap(), 0);
@@ -287,7 +287,7 @@ fn test_index_of_existent_1_element () {
 
 #[test]
 fn test_get_head_in_empty() {
-    let mut list = LinkedList::<u32>::new();
+    let list = LinkedList::<u32>::new();
     assert_eq!(list.get_head(), None);
 }
 
@@ -347,19 +347,19 @@ fn test_get_head_after_insert_at_first() {
 
 #[test]
 fn test_get_at_in_empty() {
-    let mut list = LinkedList::<String>::new();
+    let list = LinkedList::<String>::new();
     assert_eq!(list.get_at(0), None);
 }
 
 #[test]
-fn test_get_at_first_in_1_element(){
+fn test_get_at_first_in_1_element() {
     let mut list = LinkedList::<String>::new();
     list.add("Rust".to_owned());
     assert_eq!(list.get_at(0).unwrap(), "Rust");
 }
 
 #[test]
-fn test_get_at_outside_in_1_element(){
+fn test_get_at_outside_in_1_element() {
     let mut list = LinkedList::<String>::new();
     list.add("Rust".to_owned());
     assert_eq!(list.get_at(1), None);
@@ -420,7 +420,6 @@ fn test_get_tail_at_n() {
     assert_eq!(list.get_tail().unwrap(), "awesome");
 }
 
-
 #[test]
 fn test_get_tail_after_remove() {
     let mut list = LinkedList::<String>::new();
@@ -429,7 +428,7 @@ fn test_get_tail_after_remove() {
     list.add("awesome".to_owned());
     assert_eq!(list.get_head().unwrap(), "Rust");
     assert_eq!(list.get_tail().unwrap(), "awesome");
-    list.remove_at(list.len() -1);
+    list.remove_at(list.len() - 1);
     assert_eq!(list.get_tail().unwrap(), "is");
 }
 
@@ -437,7 +436,7 @@ fn test_get_tail_after_remove() {
 fn test_clear_in_empty() {
     let mut list = LinkedList::<String>::new();
     list.clear();
-    assert_eq!(list.len(), 0);
+    assert!(list.is_empty());
     assert_eq!(list.get_head(), None);
     assert_eq!(list.get_tail(), None);
 }
@@ -447,19 +446,20 @@ fn test_clear_at_single() {
     let mut list = LinkedList::<String>::new();
     list.add("Rust".to_owned());
     list.clear();
-    assert_eq!(list.len(), 0);
+    assert!(list.is_empty());
     assert_eq!(list.get_head(), None);
     assert_eq!(list.get_tail(), None);
 }
 
 #[test]
 fn test_clear_at_n() {
-    let mut list = LinkedList::<String>::new();
+    let mut list = LinkedList::<String>::default();
     list.add("Rust".to_owned());
     list.add("is".to_owned());
     list.add("awesome".to_owned());
     list.clear();
     assert_eq!(list.len(), 0);
+    assert!(list.is_empty());
     assert_eq!(list.get_head(), None);
     assert_eq!(list.get_tail(), None);
 }
