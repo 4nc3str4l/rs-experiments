@@ -1,4 +1,5 @@
 pub mod array_stack;
+pub mod linked_stack;
 
 pub trait Stack<T> {
     fn push(&mut self, t: T);
