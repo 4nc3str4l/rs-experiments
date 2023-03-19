@@ -463,3 +463,19 @@ fn test_clear_at_n() {
     assert_eq!(list.get_head(), None);
     assert_eq!(list.get_tail(), None);
 }
+
+#[test]
+fn test_collect() {
+    let list = vec![1, 2, 3].into_iter().collect::<LinkedList<i32>>();
+    assert_eq!(list.len(), 3);
+    assert_eq!(list.get_head(), Some(1));
+    assert_eq!(list.get_tail(), Some(3));
+}
+
+#[test]
+fn test_from_vec() {
+    let list = LinkedList::from_vec(vec![1, 2, 3]);
+    assert_eq!(list.len(), 3);
+    assert_eq!(list.get_head(), Some(1));
+    assert_eq!(list.get_tail(), Some(3));
+}

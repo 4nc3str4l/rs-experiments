@@ -1,4 +1,4 @@
-use std::fmt;
+use std::{fmt, cmp::PartialEq};
 
 pub struct Node<T> {
     pub value: T,
@@ -10,7 +10,7 @@ pub struct LinkedList<T> {
     size: usize,
 }
 
-impl<T: std::fmt::Display + std::cmp::PartialEq + Clone> LinkedList<T> {
+impl<T: std::fmt::Display + PartialEq + Clone> LinkedList<T> {
     pub fn new() -> Self {
         Self {
             head: None,
@@ -184,6 +184,10 @@ impl<T: std::fmt::Display + std::cmp::PartialEq + Clone> LinkedList<T> {
     pub fn is_empty(&self) -> bool {
         self.size == 0
     }
+
+    pub fn from_vec(vector: Vec<T>) -> Self {
+        vector.into_iter().collect()
+    }
 }
 
 impl<T: std::fmt::Display> fmt::Display for LinkedList<T> {
@@ -205,8 +209,21 @@ impl<T: std::fmt::Display> fmt::Display for LinkedList<T> {
     }
 }
 
-impl<T: std::fmt::Display + std::cmp::PartialEq + Clone> Default for LinkedList<T> {
+impl<T: std::fmt::Display + PartialEq + Clone> Default for LinkedList<T> {
     fn default() -> Self {
         Self::new()
+    }
+}
+
+
+impl<T: std::fmt::Display + PartialEq + Clone> FromIterator<T> for LinkedList<T> {
+    fn from_iter<I: IntoIterator<Item = T>>(iter: I) -> Self{
+        let mut list = LinkedList { head: None, size: 0 };
+
+        for value in iter {
+            list.add(value);
+        }
+
+        list
     }
 }
