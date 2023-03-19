@@ -26,10 +26,12 @@ impl<T> Stack<T> for ArrayStack<T> {
         self.data.len() == 0
     }
 
+    #[inline]
     fn size (&self) -> usize{
         self.data.len()
     }
 
+    #[inline]
     fn peek(&self) -> Option<&T> {
         self.data.last()
     }

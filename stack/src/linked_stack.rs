@@ -46,10 +46,12 @@ impl<T: Copy> Stack<T> for LinkedStack<T> {
         }
     }
 
+    #[inline]
     fn is_empty(&self) -> bool {
         self.size == 0 
     }
 
+    #[inline]
     fn size (&self) -> usize {
         self.size
     }
