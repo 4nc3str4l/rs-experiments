@@ -227,3 +227,21 @@ impl<T: std::fmt::Display + PartialEq + Clone> FromIterator<T> for LinkedList<T>
         list
     }
 }
+
+impl<T> IntoIterator for LinkedList<T> {
+    type Item = T;
+    type IntoIter = std::vec::IntoIter<T>;
+
+    fn into_iter(self) -> Self::IntoIter {
+        let mut vec = Vec::new();
+        let mut node = self.head;
+
+        while let Some(n) = node {
+            vec.push(n.value);
+            node = n.next;
+        }
+
+        vec.into_iter()
+    }
+}
+
