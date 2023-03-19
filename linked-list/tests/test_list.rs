@@ -491,3 +491,14 @@ fn test_from_vec_and_back() {
     let vector = list.into_iter().collect::<Vec<i32>>();
     assert_eq!(vector, vec![1, 2, 3]);
 }
+
+
+#[test]
+fn test_from_vec_and_back_clone() {
+    let list = LinkedList::from_vec(vec![1, 2, 3]);
+    let vector = list.clone().into_iter().collect::<Vec<i32>>();
+    assert_eq!(vector, vec![1, 2, 3]);
+    assert_eq!(list.len(), 3);
+    assert_eq!(list.get_head(), Some(1));
+    assert_eq!(list.get_tail(), Some(3));
+}

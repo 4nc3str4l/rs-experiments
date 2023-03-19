@@ -1,14 +1,22 @@
 use std::{fmt, cmp::PartialEq};
 
-pub struct Node<T> {
+pub struct Node<T: Clone> {
     pub value: T,
     pub next: Option<Box<Node<T>>>,
 }
 
-pub struct LinkedList<T> {
+impl<T: Clone> Clone for Node<T> {
+    fn clone(&self) -> Node<T> {
+        Self {value: self.value.clone(), next: self.next.clone()}
+    }
+}
+
+#[derive(Clone)]
+pub struct LinkedList<T: Clone> {
     pub head: Option<Box<Node<T>>>,
     size: usize,
 }
+
 
 impl<T: std::fmt::Display + PartialEq + Clone> LinkedList<T> {
     pub fn new() -> Self {
@@ -190,7 +198,7 @@ impl<T: std::fmt::Display + PartialEq + Clone> LinkedList<T> {
     }
 }
 
-impl<T: std::fmt::Display> fmt::Display for LinkedList<T> {
+impl<T: std::fmt::Display + Clone> fmt::Display for LinkedList<T> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         if self.size == 0 {
             return write!(f, "[]");
@@ -228,7 +236,7 @@ impl<T: std::fmt::Display + PartialEq + Clone> FromIterator<T> for LinkedList<T>
     }
 }
 
-impl<T> IntoIterator for LinkedList<T> {
+impl<T: Clone> IntoIterator for LinkedList<T> {
     type Item = T;
     type IntoIter = std::vec::IntoIter<T>;
 
