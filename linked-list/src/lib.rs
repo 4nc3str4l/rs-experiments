@@ -236,7 +236,7 @@ impl<T: Clone> IntoIterator for LinkedList<T> {
     type IntoIter = std::vec::IntoIter<T>;
 
     fn into_iter(self) -> Self::IntoIter {
-        let mut vec = Vec::new();
+        let mut vec = Vec::with_capacity(self.size);
         let mut node = self.head;
 
         while let Some(n) = node {
