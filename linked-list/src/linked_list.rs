@@ -19,7 +19,7 @@ impl<T: std::fmt::Display> LinkedList<T> {
         }
     }
 
-    pub fn push(&mut self, value: T) {
+    pub fn add(&mut self, value: T) {
 
         if self.size == 0 {
             self.head = Some(Node { value, next: None});
@@ -29,6 +29,31 @@ impl<T: std::fmt::Display> LinkedList<T> {
                 current = current.next.as_mut().unwrap();
             }
             current.next = Some(Box::new(Node{value, next: None}));
+        }
+        self.size += 1;
+    }
+
+    pub fn insert(&mut self, value: T, position: usize) {
+        if self.size == 0 {
+            self.head = Some(Node { value, next: None});
+        }else {
+            if position == 0 {
+                self.head = Some(Node { value, next: Some(Box::new(self.head.take().unwrap()))});
+            } else if position >= self.size {
+                self.add(value);
+                return;
+            } else {
+                let mut current = self.head.as_mut().unwrap();
+                let mut counter = 0;
+                while current.next.is_some() {
+                    if counter == position {
+                        current.next = Some(Box::new(Node{value, next: current.next.take()}));
+                        break;
+                    }
+                    current = current.next.as_mut().unwrap();
+                    counter += 1;
+                }
+            }
         }
         self.size += 1;
     }
