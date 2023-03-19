@@ -1,14 +1,8 @@
-use std::{fmt, cmp::PartialEq};
+use std::{cmp::PartialEq, fmt};
 
 pub struct Node<T: Clone> {
     pub value: T,
     pub next: Option<Box<Node<T>>>,
-}
-
-impl<T: Clone> Clone for Node<T> {
-    fn clone(&self) -> Node<T> {
-        Self {value: self.value.clone(), next: self.next.clone()}
-    }
 }
 
 #[derive(Clone)]
@@ -16,7 +10,6 @@ pub struct LinkedList<T: Clone> {
     pub head: Option<Box<Node<T>>>,
     size: usize,
 }
-
 
 impl<T: std::fmt::Display + PartialEq + Clone> LinkedList<T> {
     pub fn new() -> Self {
@@ -223,10 +216,12 @@ impl<T: std::fmt::Display + PartialEq + Clone> Default for LinkedList<T> {
     }
 }
 
-
 impl<T: std::fmt::Display + PartialEq + Clone> FromIterator<T> for LinkedList<T> {
-    fn from_iter<I: IntoIterator<Item = T>>(iter: I) -> Self{
-        let mut list = LinkedList { head: None, size: 0 };
+    fn from_iter<I: IntoIterator<Item = T>>(iter: I) -> Self {
+        let mut list = LinkedList {
+            head: None,
+            size: 0,
+        };
 
         for value in iter {
             list.add(value);
@@ -253,3 +248,11 @@ impl<T: Clone> IntoIterator for LinkedList<T> {
     }
 }
 
+impl<T: Clone> Clone for Node<T> {
+    fn clone(&self) -> Node<T> {
+        Self {
+            value: self.value.clone(),
+            next: self.next.clone(),
+        }
+    }
+}

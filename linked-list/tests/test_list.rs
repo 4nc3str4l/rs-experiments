@@ -492,7 +492,6 @@ fn test_from_vec_and_back() {
     assert_eq!(vector, vec![1, 2, 3]);
 }
 
-
 #[test]
 fn test_from_vec_and_back_clone() {
     let list = LinkedList::from_vec(vec![1, 2, 3]);
