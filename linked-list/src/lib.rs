@@ -10,8 +10,7 @@ pub struct LinkedList<T> {
     size: usize,
 }
 
-impl<T: std::fmt::Display + std::cmp::PartialEq> LinkedList<T> {
-    
+impl<T: std::fmt::Display + std::cmp::PartialEq + Clone> LinkedList<T> {
     pub fn new() -> Self {
         Self {
             head: None,
@@ -20,36 +19,41 @@ impl<T: std::fmt::Display + std::cmp::PartialEq> LinkedList<T> {
     }
 
     pub fn add(&mut self, value: T) {
-
         if self.size == 0 {
-            self.head = Some(Box::new(Node { value, next: None}));
-        }else {
+            self.head = Some(Box::new(Node { value, next: None }));
+        } else {
             let mut current = self.head.as_mut().unwrap();
             while current.next.is_some() {
                 current = current.next.as_mut().unwrap();
             }
-            current.next = Some(Box::new(Node{value, next: None}));
+            current.next = Some(Box::new(Node { value, next: None }));
         }
         self.size += 1;
     }
 
     pub fn insert(&mut self, value: T, position: usize) {
         if self.size == 0 {
-            self.head = Some(Box::new(Node { value, next: None}));
-        }else {
+            self.head = Some(Box::new(Node { value, next: None }));
+        } else {
             if position == 0 {
-                self.head = Some(Box::new(Node { value, next: Some(self.head.take().unwrap())}));
+                self.head = Some(Box::new(Node {
+                    value,
+                    next: Some(self.head.take().unwrap()),
+                }));
             } else if position >= self.size {
                 self.add(value);
                 return;
             } else {
                 let mut current = self.head.as_mut().unwrap();
                 let mut counter = 0;
-                while counter != (position -1) {
+                while counter != (position - 1) {
                     current = current.next.as_mut().unwrap();
                     counter += 1;
                 }
-                current.next = Some(Box::new(Node{value, next: current.next.take()}));
+                current.next = Some(Box::new(Node {
+                    value,
+                    next: current.next.take(),
+                }));
             }
         }
         self.size += 1;
@@ -58,12 +62,12 @@ impl<T: std::fmt::Display + std::cmp::PartialEq> LinkedList<T> {
     pub fn remove(&mut self, value: T) {
         if self.size == 0 {
             return;
-        }else {
+        } else {
             let mut current = self.head.as_mut().unwrap();
-            if current.value == value{
+            if current.value == value {
                 if self.size > 1 {
                     self.head = self.head.as_mut().unwrap().next.take();
-                }else{
+                } else {
                     self.head = None;
                 }
                 self.size -= 1;
@@ -76,7 +80,7 @@ impl<T: std::fmt::Display + std::cmp::PartialEq> LinkedList<T> {
                     current.next = next.next.take();
                     self.size -= 1;
                     break;
-                }else{
+                } else {
                     current = current.next.as_mut().unwrap();
                 }
             }
@@ -86,17 +90,17 @@ impl<T: std::fmt::Display + std::cmp::PartialEq> LinkedList<T> {
     pub fn remove_at(&mut self, position: usize) {
         if self.size == 0 {
             return;
-        }else {
-            if position == 0{
+        } else {
+            if position == 0 {
                 if self.size > 1 {
                     self.head = self.head.as_mut().unwrap().next.take();
-                }else{
+                } else {
                     self.head = None;
                 }
                 self.size -= 1;
                 return;
             }
-            
+
             let mut current = self.head.as_mut().unwrap();
             let mut idx = 1;
             while current.next.is_some() {
@@ -105,7 +109,7 @@ impl<T: std::fmt::Display + std::cmp::PartialEq> LinkedList<T> {
                     current.next = next.next.take();
                     self.size -= 1;
                     break;
-                }else{
+                } else {
                     current = current.next.as_mut().unwrap();
                     idx += 1;
                 }
@@ -114,23 +118,68 @@ impl<T: std::fmt::Display + std::cmp::PartialEq> LinkedList<T> {
     }
 
     pub fn index_of(&mut self, value: T) -> Option<usize> {
+        if self.size == 0 {
+            return None;
+        } else {
+            let mut current = self.head.as_mut().unwrap();
+            if current.value == value {
+                return Some(0);
+            }
+
+            let mut idx = 1;
+            while current.next.is_some() {
+                let next = current.next.as_mut().unwrap();
+                if next.value == value {
+                    return Some(idx);
+                } else {
+                    current = current.next.as_mut().unwrap();
+                    idx += 1;
+                }
+            }
+        }
         None
     }
 
-    pub fn get_head() -> Option<T> {
+    pub fn get_head(&self) -> Option<T> {
+        match &self.head {
+            Some(head) => Some(head.value.clone()),
+            None => None,
+        }
+    }
+
+    pub fn get_at(&self, position: usize) -> Option<T> {
+        if self.size == 0 {
+            return None;
+        } else {
+            if position == 0 {
+                return self.get_head();
+            }
+
+            let mut current = self.head.as_ref().unwrap();
+            let mut idx = 1;
+            while current.next.is_some() {
+                let next = current.next.as_ref().unwrap();
+                if idx == position {
+                    return Some(next.value.clone())
+                } else {
+                    current = current.next.as_ref().unwrap();
+                    idx += 1;
+                }
+            }
+        }
         None
     }
 
-    pub fn get_at(&mut self, position: usize) -> Option<T> {
-        None
+    pub fn get_tail(&self) -> Option<T> {
+        if self.len() == 0 {
+            return None;
+        }
+        self.get_at(self.len() -1)
     }
 
-    pub fn get_tail() -> Option<T> {
-        None
-    }
-
-    pub fn clear() {
-
+    pub fn clear(&mut self) {
+        self.head = None;
+        self.size = 0;
     }
 
     pub fn len(&self) -> usize {
@@ -140,16 +189,14 @@ impl<T: std::fmt::Display + std::cmp::PartialEq> LinkedList<T> {
     pub fn empty(&self) -> bool {
         self.size == 0
     }
-    
 }
-
 
 impl<T: std::fmt::Display> fmt::Display for LinkedList<T> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         if self.size == 0 {
             return write!(f, "[]");
         }
-        
+
         let mut out = String::new();
         let mut current = self.head.as_ref().unwrap();
         out += "[";
