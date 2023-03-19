@@ -1,19 +1,18 @@
 use crate::Stack;
 
-
-pub struct ArrayStack <T> {
+pub struct ArrayStack<T> {
     data: Vec<T>,
 }
 
-
-impl <T> Default for ArrayStack<T> {
+impl<T> Default for ArrayStack<T> {
     fn default() -> Self {
-        Self { data: Default::default() }
+        Self {
+            data: Default::default(),
+        }
     }
 }
 
 impl<T> Stack<T> for ArrayStack<T> {
-
     fn push(&mut self, t: T) {
         self.data.push(t)
     }
@@ -27,7 +26,7 @@ impl<T> Stack<T> for ArrayStack<T> {
     }
 
     #[inline]
-    fn size (&self) -> usize{
+    fn size(&self) -> usize {
         self.data.len()
     }
 

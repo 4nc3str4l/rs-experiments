@@ -6,5 +6,5 @@ pub trait Stack<T> {
     fn pop(&mut self) -> Option<T>;
     fn peek(&self) -> Option<&T>;
     fn is_empty(&self) -> bool;
-    fn size (&self) -> usize;
-} 
+    fn size(&self) -> usize;
+}
