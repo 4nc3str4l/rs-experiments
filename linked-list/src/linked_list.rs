@@ -6,11 +6,11 @@ pub struct Node<T> {
 }
 
 pub struct LinkedList<T> {
-    pub head: Option<Node<T>>,
+    pub head: Option<Box<Node<T>>>,
     size: usize,
 }
 
-impl<T: std::fmt::Display> LinkedList<T> {
+impl<T: std::fmt::Display + std::cmp::PartialEq> LinkedList<T> {
     
     pub fn new() -> Self {
         Self {
@@ -22,7 +22,7 @@ impl<T: std::fmt::Display> LinkedList<T> {
     pub fn add(&mut self, value: T) {
 
         if self.size == 0 {
-            self.head = Some(Node { value, next: None});
+            self.head = Some(Box::new(Node { value, next: None}));
         }else {
             let mut current = self.head.as_mut().unwrap();
             while current.next.is_some() {
@@ -35,10 +35,10 @@ impl<T: std::fmt::Display> LinkedList<T> {
 
     pub fn insert(&mut self, value: T, position: usize) {
         if self.size == 0 {
-            self.head = Some(Node { value, next: None});
+            self.head = Some(Box::new(Node { value, next: None}));
         }else {
             if position == 0 {
-                self.head = Some(Node { value, next: Some(Box::new(self.head.take().unwrap()))});
+                self.head = Some(Box::new(Node { value, next: Some(self.head.take().unwrap())}));
             } else if position >= self.size {
                 self.add(value);
                 return;
@@ -56,6 +56,34 @@ impl<T: std::fmt::Display> LinkedList<T> {
             }
         }
         self.size += 1;
+    }
+
+    pub fn remove(&mut self, value: T) {
+        if self.size == 0 {
+            return;
+        }else {
+            let mut current = self.head.as_mut().unwrap();
+            if current.value == value{
+                if self.size > 1 {
+                    self.head = self.head.as_mut().unwrap().next.take();
+                }else{
+                    self.head = None;
+                }
+                self.size -= 1;
+                return;
+            }
+
+            while current.next.is_some() {
+                let next = current.next.as_mut().unwrap();
+                if next.value == value {
+                    current.next = next.next.take();
+                    self.size -= 1;
+                    break;
+                }else{
+                    current = current.next.as_mut().unwrap();
+                }
+            }
+        }
     }
 
     pub fn len(&self) -> usize {
