@@ -4,7 +4,9 @@
 The goal of this experiment is to amuse myself by trying various techniques to recognize the author of a text in Rust (Usually I would do that in Python but yeah, this helps me learn a bit how to do data science stuff in Rust which is something that I don't do regullarly)
 
 
-## Single Char Recognition 
+## Single Char Frequencies
+
+File: [single_char_recognition.rs](https://github.com/4nc3str4l/rust-experiments/blob/main/author-recognition/src/single_char_recognition.rs)
 
 This is a very naive method that tries to count how many letters each author is using, then computing the average frecuency for each letter to then be able to do the same with any input text in order to compute the distance between the two average vectors.
 
