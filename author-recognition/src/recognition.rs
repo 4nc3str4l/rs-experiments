@@ -1,30 +1,23 @@
 use std::collections::HashMap;
 
-use crate::data::{DataSet};
+use crate::data::DataSet;
 
-#[derive(Debug)]
+#[derive(Debug, Default)]
 pub struct RecognitionResult {
     pub data: Vec<(String, f64)>,
 }
 
 impl RecognitionResult {
-
     pub fn get_min_distance(&self) -> Option<(String, f64)> {
         let mut min = std::f64::MAX;
         let mut idx_to_copy = 0;
         for t in self.data.iter().enumerate() {
-            if t.1.1 < min {
+            if t.1 .1 < min {
                 idx_to_copy = t.0;
                 min = t.1 .1;
             }
         }
         self.data.get(idx_to_copy).cloned()
-    }
-}
-
-impl Default for RecognitionResult {
-    fn default() -> Self {
-        Self { data: Default::default() }
     }
 }
 

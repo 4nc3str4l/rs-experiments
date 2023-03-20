@@ -1,12 +1,13 @@
 use std::collections::HashMap;
 
 use crate::{
-    data::{Text, DataSet},
+    data::{DataSet, Text},
     recognition::{RecognitionResult, RecognitionSystem},
 };
 
-const TRACKING_CHARS: &str = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ ,.;'\"";
+const TRACKING_CHARS: &str = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ ,.;'\"-";
 
+#[derive(Debug)]
 pub struct ProfileData {
     pub profile: HashMap<char, f64>,
     pub num_characters: f64,
@@ -14,7 +15,10 @@ pub struct ProfileData {
 
 impl Default for ProfileData {
     fn default() -> Self {
-        Self { profile: TRACKING_CHARS.chars().map(|c| (c, 0.)).collect(), num_characters: 0.0 }
+        Self {
+            profile: TRACKING_CHARS.chars().map(|c| (c, 0.)).collect(),
+            num_characters: 0.0,
+        }
     }
 }
 
@@ -31,7 +35,7 @@ impl ProfileData {
 
     fn apply_avg(&mut self) {
         for entry in self.profile.iter_mut() {
-            *entry.1 = *entry.1 / self.num_characters;
+            *entry.1 /= self.num_characters;
         }
     }
 
@@ -44,6 +48,7 @@ impl ProfileData {
     }
 }
 
+#[derive(Debug)]
 pub struct SingleCharAuthorProfile {
     pub author: String,
     pub data: ProfileData,
@@ -53,7 +58,7 @@ impl SingleCharAuthorProfile {
     pub fn new(author: String) -> Self {
         Self {
             author,
-            data: ProfileData::default()
+            data: ProfileData::default(),
         }
     }
 }
@@ -79,11 +84,10 @@ impl SingleCharacterRecogntion {
 
 impl RecognitionSystem for SingleCharacterRecogntion {
     fn train(&mut self, data: &DataSet) {
-        
         for text in &data.data {
             self.classify(text);
         }
-        
+
         // Once we have iterated over all the texts we need to apply the avg to each profile to finish the vector
         for profile in self.author_profiles.iter_mut() {
             profile.1.data.apply_avg();
@@ -91,9 +95,17 @@ impl RecognitionSystem for SingleCharacterRecogntion {
     }
 
     fn test_recognition(&self, test: &DataSet) -> HashMap<String, f64> {
-        let mut accuracies: HashMap<String, (f64, f64)> = self.author_profiles.keys().map(|author| {return (author.to_owned(), (0.0, 0.0))}).collect();
+        let mut accuracies: HashMap<String, (f64, f64)> = self
+            .author_profiles
+            .keys()
+            .map(|author| (author.to_owned(), (0.0, 0.0)))
+            .collect();
         for test_text in &test.data {
-            let result = self.recognize(&test_text.text).get_min_distance().unwrap().0;
+            let result = self
+                .recognize(&test_text.text)
+                .get_min_distance()
+                .unwrap()
+                .0;
             let data = accuracies.get_mut(&test_text.author).unwrap();
             data.1 += 1.0; // Add the times that it appeared
             if result == test_text.author {
@@ -101,12 +113,15 @@ impl RecognitionSystem for SingleCharacterRecogntion {
             }
         }
         println!("Accuracies: {:?}", &accuracies);
-        return accuracies.into_iter().map(|entry| {(entry.0.to_owned(), entry.1.0 / entry.1.1)}).collect();
+        accuracies
+            .into_iter()
+            .map(|entry| (entry.0.to_owned(), entry.1 .0 / entry.1 .1))
+            .collect()
     }
 
     fn recognize(&self, text: &str) -> RecognitionResult {
         let mut prof = ProfileData::default();
-        prof.process(&text);
+        prof.process(text);
         prof.apply_avg();
 
         let mut result = RecognitionResult::default();
