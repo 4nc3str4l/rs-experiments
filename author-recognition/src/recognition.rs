@@ -1,29 +1,38 @@
 use std::collections::HashMap;
 
-use crate::data::{DataSet, Text};
+use crate::data::{DataSet};
 
-struct RecognitionResult {
-    data: Vec<(String, f64)>
+#[derive(Debug)]
+pub struct RecognitionResult {
+    pub data: Vec<(String, f64)>,
 }
 
 impl RecognitionResult {
-    fn get_max(&self) -> Option<(String, f64)> {
-        let mut max = std::f64::MIN;
+
+    pub fn get_min_distance(&self) -> Option<(String, f64)> {
+        let mut min = std::f64::MAX;
         let mut idx_to_copy = 0;
         for t in self.data.iter().enumerate() {
-            if t.1.1 > max {
+            if t.1.1 < min {
                 idx_to_copy = t.0;
-                max = t.1.1;
+                min = t.1 .1;
             }
         }
         self.data.get(idx_to_copy).cloned()
     }
 }
 
-trait RecognitionSystem {
-    fn train(data: DataSet);
+impl Default for RecognitionResult {
+    fn default() -> Self {
+        Self { data: Default::default() }
+    }
+}
+
+pub trait RecognitionSystem {
+    // Trains the system
+    fn train(&mut self, data: &DataSet);
     // Returns accuracy for each author
-    fn test_recognition(data: DataSet) -> HashMap<String, f64>;
+    fn test_recognition(&self, test: &DataSet) -> HashMap<String, f64>;
     // Returns all authors and how
-    fn recognize(text: Text) -> RecognitionResult;
+    fn recognize(&self, text: &str) -> RecognitionResult;
 }

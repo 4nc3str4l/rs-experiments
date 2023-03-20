@@ -1,4 +1,9 @@
-use std::{collections::HashMap, path::Path, fs::File, io::{self, BufRead}};
+use std::{
+    collections::HashMap,
+    fs::File,
+    io::{self, BufRead},
+    path::Path,
+};
 
 #[derive(Default, Debug)]
 pub struct Text {
