@@ -14,5 +14,9 @@ impl<T: ProfileData + Default> Profile<T> {
 
 pub trait ProfileData {
     fn process(&mut self, txt: &str);
-    fn check_difference(&self, profile_data: &Self) -> f64;
+    fn check_difference(
+        &self,
+        other: &Self,
+        evaluation_function: fn(own: &Self, other: &Self) -> f64,
+    ) -> f64;
 }
