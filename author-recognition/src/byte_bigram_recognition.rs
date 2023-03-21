@@ -1,6 +1,10 @@
 use std::collections::HashMap;
 
-use crate::{recognition::{System, RecognitionSystem, RecognitionResult}, profile::ProfileData, data::DataSet};
+use crate::{
+    data::DataSet,
+    profile::ProfileData,
+    recognition::{RecognitionResult, RecognitionSystem, System},
+};
 
 type ByteBigramRecognition = System<ByteBigramProfileData>;
 
@@ -19,9 +23,7 @@ impl RecognitionSystem for ByteBigramRecognition {
 }
 
 #[derive(Debug, Default)]
-pub struct ByteBigramProfileData {
-
-}
+pub struct ByteBigramProfileData {}
 
 impl ProfileData for ByteBigramProfileData {
     fn process(&mut self, txt: &str) {
@@ -36,4 +38,3 @@ impl ProfileData for ByteBigramProfileData {
         todo!()
     }
 }
-
