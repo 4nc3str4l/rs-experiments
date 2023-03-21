@@ -88,6 +88,14 @@ pub struct SingleCharProfileData {
     pub num_characters: f64,
 }
 
+impl SingleCharProfileData {
+    fn apply_avg(&mut self) {
+        for entry in self.profile.iter_mut() {
+            *entry.1 /= self.num_characters;
+        }
+    }
+}
+
 impl Default for SingleCharProfileData {
     fn default() -> Self {
         Self {
@@ -114,14 +122,6 @@ impl ProfileData for SingleCharProfileData {
         evaluation_function: fn(s: &SingleCharProfileData, other: &SingleCharProfileData) -> f64,
     ) -> f64 {
         evaluation_function(self, other)
-    }
-}
-
-impl SingleCharProfileData {
-    fn apply_avg(&mut self) {
-        for entry in self.profile.iter_mut() {
-            *entry.1 /= self.num_characters;
-        }
     }
 }
 
