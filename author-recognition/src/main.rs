@@ -4,11 +4,11 @@ use crate::{
     single_char_recognition::SingleCharacterRecogntion,
 };
 
+mod bigram_recognition;
 mod data;
+mod profile;
 mod recognition;
 mod single_char_recognition;
-mod bigram_recognition;
-mod profile;
 
 fn main() {
     let (train, test) = extract_datasets("resources/data.csv", 18000);
