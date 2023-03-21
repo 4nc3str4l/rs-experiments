@@ -63,3 +63,16 @@ MMmmm this technique seems to improve a bit the results which is interesting, le
 
 This time I'll do something very similar but by using the frecuency of the bigrams at byte level, this time I expect
 to see an improvement over just analyzing character frecuencies, will see...
+
+
+## Jaccard Distance
+
+To compute how similar are two bigram groups looks like something good to do but....
+
+| Author          | Initials | Num Correct | Total | Accuracy |
+|-----------------|----------|-------------|-------|----------|
+| HP Lovecraft    | HPL      | 0           | 454   | 39%      |
+| Edgar Allan Poe | EAP      | 636         | 637   | 42%      |
+| Mary Shelley    | MWS      | 0           | 488   | 44.8%    |
+
+Edgar allan poe wins everything as he has way more text in the dataset (thus more bigrams), so I need to see what I can do.
