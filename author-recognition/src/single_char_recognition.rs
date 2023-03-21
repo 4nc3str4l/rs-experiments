@@ -2,18 +2,18 @@ use std::collections::HashMap;
 
 use crate::{
     data::{DataSet, Text},
-    recognition::{RecognitionResult, RecognitionSystem},
+    recognition::{RecognitionResult, RecognitionSystem}, profile::{Profile, ProfileData},
 };
 
 const TRACKING_CHARS: &str = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ ,.;'\"-";
 
 #[derive(Debug)]
-pub struct ProfileData {
+pub struct SingleCharProfileData {
     pub profile: HashMap<char, f64>,
     pub num_characters: f64,
 }
 
-impl Default for ProfileData {
+impl Default for SingleCharProfileData {
     fn default() -> Self {
         Self {
             profile: TRACKING_CHARS.chars().map(|c| (c, 0.)).collect(),
@@ -22,7 +22,8 @@ impl Default for ProfileData {
     }
 }
 
-impl ProfileData {
+impl ProfileData for SingleCharProfileData {
+
     fn process(&mut self, txt: &str) {
         for c in txt.chars() {
             if self.profile.contains_key(&c) {
@@ -33,31 +34,26 @@ impl ProfileData {
         }
     }
 
-    fn apply_avg(&mut self) {
-        for entry in self.profile.iter_mut() {
-            *entry.1 /= self.num_characters;
-        }
-    }
 
-    fn check_difference(&self, other: &ProfileData) -> f64 {
-        let mut distance = 0.0;
-        for (x0, x1) in self.profile.iter().zip(other.profile.iter()) {
-            distance += (*x0.1 - *x1.1).abs();
-        }
-        distance
-    }
+    // fn _check_difference(&self, other: &ProfileData) -> f64 {
+    //     let mut distance = 0.0;
+    //     for (x0, x1) in self.profile.iter().zip(other.profile.iter()) {
+    //         distance += (*x0.1 - *x1.1).abs();
+    //     }
+    //     distance
+    // }
 
-    fn check_difference_v2(&self, other: &ProfileData) -> f64 {
-        let mut distance = 0.0;
-        for (x0, x1) in self.profile.iter().zip(other.profile.iter()) {
-            if *x0.1 != 0.0 && *x1.1 != 0.0 {
-                distance += (*x0.1 - *x1.1).abs();
-            }
-        }
-        distance
-    }
+    // fn _check_difference_v2(&self, other: &ProfileData) -> f64 {
+    //     let mut distance = 0.0;
+    //     for (x0, x1) in self.profile.iter().zip(other.profile.iter()) {
+    //         if *x0.1 != 0.0 && *x1.1 != 0.0 {
+    //             distance += (*x0.1 - *x1.1).abs();
+    //         }
+    //     }
+    //     distance
+    // }
 
-    fn check_difference_v3(&self, other: &ProfileData) -> f64 {
+    fn check_difference(&self, other: &SingleCharProfileData) -> f64 {
         let mut distance = 0.0;
         // I know that this is terrible as I am doing this each time, 
         // it is just to be able to test ideas fast, also I use a bunch of
@@ -77,24 +73,17 @@ impl ProfileData {
 
 }
 
-#[derive(Debug)]
-pub struct SingleCharAuthorProfile {
-    pub author: String,
-    pub data: ProfileData,
-}
-
-impl SingleCharAuthorProfile {
-    pub fn new(author: String) -> Self {
-        Self {
-            author,
-            data: ProfileData::default(),
+impl SingleCharProfileData {
+    fn apply_avg(&mut self) {
+        for entry in self.profile.iter_mut() {
+            *entry.1 /= self.num_characters;
         }
     }
 }
 
 #[derive(Default)]
 pub struct SingleCharacterRecogntion {
-    pub author_profiles: HashMap<String, SingleCharAuthorProfile>,
+    pub author_profiles: HashMap<String, Profile<SingleCharProfileData>>,
 }
 
 impl SingleCharacterRecogntion {
@@ -103,7 +92,7 @@ impl SingleCharacterRecogntion {
         if !self.author_profiles.contains_key(&txt.author) {
             self.author_profiles.insert(
                 author.to_owned(),
-                SingleCharAuthorProfile::new(author.to_owned()),
+                Profile::<SingleCharProfileData>::new(author),
             );
         }
         let target_profile = self.author_profiles.get_mut(author).unwrap();
@@ -149,14 +138,14 @@ impl RecognitionSystem for SingleCharacterRecogntion {
     }
 
     fn recognize(&self, text: &str) -> RecognitionResult {
-        let mut prof = ProfileData::default();
+        let mut prof = SingleCharProfileData::default();
         prof.process(text);
         prof.apply_avg();
 
         let mut result = RecognitionResult::default();
 
         for author_profile in &self.author_profiles {
-            let distance = author_profile.1.data.check_difference_v3(&prof);
+            let distance = author_profile.1.data.check_difference(&prof);
             result.data.push((author_profile.0.to_owned(), distance))
         }
         result
