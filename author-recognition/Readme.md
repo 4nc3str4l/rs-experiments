@@ -4,7 +4,7 @@
 The goal of this experiment is to amuse myself by trying various techniques to recognize the author of a text in Rust (Usually I would do that in Python but yeah, this helps me learn a bit how to do data science stuff in Rust which is something that I don't do regullarly)
 
 
-## Single Char Frequencies
+# Single Char Frequencies
 
 File: [single_char_recognition.rs](https://github.com/4nc3str4l/rust-experiments/blob/main/author-recognition/src/single_char_recognition.rs)
 
@@ -47,3 +47,19 @@ Actually it is similar, nothing magical.
 ## Single char frecuencies v3 (Check against n most used characters)
 
 This time I will try to evaluate just by checking the top 15 more used characters to check if it changes something
+
+| Author          | Initials | Num Correct | Total | Accuracy |
+|-----------------|----------|-------------|-------|----------|
+| HP Lovecraft    | HPL      | 178         | 454   | 39%    |
+| Edgar Allan Poe | EAP      | 268         | 637   | 42%    |
+| Mary Shelley    | MWS      | 219         | 488   | 44.8%      |
+
+MMmmm this technique seems to improve a bit the results which is interesting, less is more I guess...
+
+
+# Bigrams
+
+## Byte bigram based author recognition:
+
+This time I'll do something very similar but by using the frecuency of the bigrams at byte level, this time I expect
+to see an improvement over just analyzing character frecuencies, will see...

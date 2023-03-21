@@ -62,8 +62,8 @@ impl ProfileData {
         // I know that this is terrible as I am doing this each time, 
         // it is just to be able to test ideas fast, also I use a bunch of
         // unwraps and so on, please gods of Rust, forgive me for my sins.
-        let mut vec: Vec<_> = (&self.profile).into_iter().collect();
-        vec.sort_by(|a, b| b.1.partial_cmp(&a.1).unwrap());
+        let mut vec: Vec<_> = (self.profile).iter().collect();
+        vec.sort_by(|a, b| b.1.partial_cmp(a.1).unwrap());
         let top = vec.into_iter().take(15).collect::<HashMap<_, _>>();
 
         for x0 in other.profile.iter() {
