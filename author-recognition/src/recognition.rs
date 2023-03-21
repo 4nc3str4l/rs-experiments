@@ -1,6 +1,9 @@
 use std::collections::HashMap;
 
-use crate::data::DataSet;
+use crate::{
+    data::DataSet,
+    profile::{Profile, ProfileData},
+};
 
 #[derive(Debug, Default)]
 pub struct RecognitionResult {
@@ -19,6 +22,11 @@ impl RecognitionResult {
         }
         self.data.get(idx_to_copy).cloned()
     }
+}
+
+#[derive(Default)]
+pub struct System<T: ProfileData + Default> {
+    pub author_profiles: HashMap<String, Profile<T>>,
 }
 
 pub trait RecognitionSystem {

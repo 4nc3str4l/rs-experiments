@@ -1,3 +1,4 @@
+#[derive(Default)]
 pub struct Profile<T: ProfileData + Default> {
     pub author: String,
     pub data: T,

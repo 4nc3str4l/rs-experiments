@@ -3,15 +3,12 @@ use std::collections::HashMap;
 use crate::{
     data::{DataSet, Text},
     profile::{Profile, ProfileData},
-    recognition::{RecognitionResult, RecognitionSystem},
+    recognition::{RecognitionResult, RecognitionSystem, System},
 };
 
 const TRACKING_CHARS: &str = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ ,.;'\"-";
 
-#[derive(Default)]
-pub struct SingleCharacterRecogntion {
-    pub author_profiles: HashMap<String, Profile<SingleCharProfileData>>,
-}
+pub type SingleCharacterRecogntion = System<SingleCharProfileData>;
 
 impl SingleCharacterRecogntion {
     fn classify(&mut self, txt: &Text) {

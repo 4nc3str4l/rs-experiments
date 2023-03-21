@@ -4,7 +4,7 @@ use crate::{
     single_char_recognition::SingleCharacterRecogntion,
 };
 
-mod bigram_recognition;
+mod byte_bigram_recognition;
 mod data;
 mod profile;
 mod recognition;
