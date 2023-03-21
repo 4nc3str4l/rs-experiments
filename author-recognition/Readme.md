@@ -23,3 +23,27 @@ I just did this in order to setup the basis for more advanced methods.
 | HP Lovecraft    | HPL      | 135         | 454   | 29.7%    |
 | Edgar Allan Poe | EAP      | 223         | 637   | 33.6%    |
 | Mary Shelley    | MWS      | 168         | 488   | 35%      |
+
+The tecnique being used in the end just tries to check what is the frecuency of every letter and this works well if the authors work in different languages, but as all of the m are using english the technique doesn't offer much.
+
+
+## Trying to improve the method a little bit:
+
+Even thought the method is quite naive, I would like to try to see if I can improve a bit it's performance, to achieve something that doesn't look as random.
+
+## Single char frecuencies v2 (Not penalize for not using a character)
+
+Now if the text doesn't contain a character the author get's penalized, I'll try to avoid this and check the results.
+
+
+| Author          | Initials | Num Correct | Total | Accuracy |
+|-----------------|----------|-------------|-------|----------|
+| HP Lovecraft    | HPL      | 128         | 454   | 28.1%    |
+| Edgar Allan Poe | EAP      | 223         | 637   | 35%    |
+| Mary Shelley    | MWS      | 153         | 488   | 31.3%      |
+
+Actually it is similar, nothing magical.
+
+## Single char frecuencies v3 (Check against n most used characters)
+
+This time I will try to evaluate just by checking the top 15 more used characters to check if it changes something

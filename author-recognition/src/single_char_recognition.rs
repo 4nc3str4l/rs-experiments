@@ -46,6 +46,35 @@ impl ProfileData {
         }
         distance
     }
+
+    fn check_difference_v2(&self, other: &ProfileData) -> f64 {
+        let mut distance = 0.0;
+        for (x0, x1) in self.profile.iter().zip(other.profile.iter()) {
+            if *x0.1 != 0.0 && *x1.1 != 0.0 {
+                distance += (*x0.1 - *x1.1).abs();
+            }
+        }
+        distance
+    }
+
+    fn check_difference_v3(&self, other: &ProfileData) -> f64 {
+        let mut distance = 0.0;
+        // I know that this is terrible as I am doing this each time, 
+        // it is just to be able to test ideas fast, also I use a bunch of
+        // unwraps and so on, please gods of Rust, forgive me for my sins.
+        let mut vec: Vec<_> = (&self.profile).into_iter().collect();
+        vec.sort_by(|a, b| b.1.partial_cmp(&a.1).unwrap());
+        let top = vec.into_iter().take(15).collect::<HashMap<_, _>>();
+
+        for x0 in other.profile.iter() {
+            if top.contains_key(x0.0) {
+                distance += (*x0.1 - *top.get(x0.0).unwrap()).abs();
+            }
+            
+        }
+        distance
+    }
+
 }
 
 #[derive(Debug)]
@@ -127,7 +156,7 @@ impl RecognitionSystem for SingleCharacterRecogntion {
         let mut result = RecognitionResult::default();
 
         for author_profile in &self.author_profiles {
-            let distance = author_profile.1.data.check_difference(&prof);
+            let distance = author_profile.1.data.check_difference_v3(&prof);
             result.data.push((author_profile.0.to_owned(), distance))
         }
         result
