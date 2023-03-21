@@ -1,8 +1,8 @@
 use std::collections::HashMap;
 
 use crate::{
-    data::{DataSet, Text},
-    profile::{Profile, ProfileData},
+    data::{DataSet},
+    profile::{ProfileData},
     recognition::{RecognitionResult, RecognitionSystem, System},
 };
 
@@ -10,26 +10,14 @@ const TRACKING_CHARS: &str = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWX
 
 pub type SingleCharacterRecogntion = System<SingleCharProfileData>;
 
-impl SingleCharacterRecogntion {
-    fn classify(&mut self, txt: &Text) {
-        let author = &txt.author;
-        if !self.author_profiles.contains_key(&txt.author) {
-            self.author_profiles.insert(
-                author.to_owned(),
-                Profile::<SingleCharProfileData>::new(author),
-            );
-        }
-        let target_profile = self.author_profiles.get_mut(author).unwrap();
-        target_profile.data.process(&txt.text);
-    }
-}
-
 impl RecognitionSystem for SingleCharacterRecogntion {
+
     fn train(&mut self, data: &DataSet) {
+
         for text in &data.data {
             self.classify(text);
         }
-
+        
         // Once we have iterated over all the texts we need to apply the avg to each profile to finish the vector
         for profile in self.author_profiles.iter_mut() {
             profile.1.data.apply_avg();

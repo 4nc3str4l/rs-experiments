@@ -1,7 +1,7 @@
 use std::collections::HashMap;
 
 use crate::{
-    data::DataSet,
+    data::{DataSet, Text},
     profile::{Profile, ProfileData},
 };
 
@@ -27,6 +27,22 @@ impl RecognitionResult {
 #[derive(Default)]
 pub struct System<T: ProfileData + Default> {
     pub author_profiles: HashMap<String, Profile<T>>,
+}
+
+
+impl<T: ProfileData + Default> System<T> {
+
+    pub fn classify(&mut self, txt: &Text) {
+        let author = &txt.author;
+        if !self.author_profiles.contains_key(&txt.author) {
+            self.author_profiles.insert(
+                author.to_owned(),
+                Profile::<T>::new(author),
+            );
+        }
+        let target_profile = self.author_profiles.get_mut(author).unwrap();
+        target_profile.data.process(&txt.text);
+    }
 }
 
 pub trait RecognitionSystem {
