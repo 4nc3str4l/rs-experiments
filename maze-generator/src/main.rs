@@ -11,8 +11,8 @@ use rand::seq::SliceRandom;
 const WINDOW_WIDTH: f32 = 640.;
 const WINDOW_HEIGHT: f32 = 640.;
 
-const MATRIX_WIDTH: usize = 40;
-const MATRIX_HEIGHT: usize = 40;
+const MATRIX_WIDTH: usize = 20;
+const MATRIX_HEIGHT: usize = 20;
 
 const WALL_WIDTH: f32 = 2.0;
 

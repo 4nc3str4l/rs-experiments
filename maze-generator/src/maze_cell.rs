@@ -1,3 +1,5 @@
+use std::cmp::Ordering;
+
 use crate::connection::Connection;
 
 pub struct MazeCell {
@@ -27,16 +29,20 @@ impl MazeCell {
         } else {
             (connection.x0, connection.y0)
         };
-        if self.x == other.0 {
-            if self.y > other.1 {
-                self.s_wall = false;
-            } else {
-                self.n_wall = false;
-            }
-        } else if self.x > other.0 {
-            self.e_wall = false;
-        } else {
-            self.w_wall = false;
+        match self.x.cmp(&other.0) {
+            Ordering::Equal => {
+                if self.y > other.1 {
+                    self.s_wall = false;
+                } else {
+                    self.n_wall = false;
+                }
+            },
+            Ordering::Greater => {
+                self.e_wall = false;
+            },
+            Ordering::Less => {
+                self.w_wall = false;
+            },
         }
     }
 }
