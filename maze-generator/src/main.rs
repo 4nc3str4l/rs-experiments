@@ -1,7 +1,7 @@
 //! Shows how to render simple primitive shapes with a single color.
 
-mod maze_cell;
 mod connection;
+mod maze_cell;
 
 use bevy::{prelude::*, sprite::MaterialMesh2dBundle, window::PresentMode};
 use connection::Connection;
@@ -126,19 +126,30 @@ fn construct_cells(connections: &Vec<Connection>) -> Vec<MazeCell> {
 
 fn get_connections() -> Vec<Connection> {
     let mut data = Vec::with_capacity(MATRIX_HEIGHT * MATRIX_WIDTH);
-    let mut connections: Vec<Connection> =
-        Vec::with_capacity(data.capacity() * 2);
+    let mut connections: Vec<Connection> = Vec::with_capacity(data.capacity() * 2);
     for y in 0..MATRIX_HEIGHT {
         for x in 0..MATRIX_WIDTH {
             let current_idx = xy_to_idx(x, y);
             data.push(current_idx);
 
             if x < MATRIX_WIDTH - 1 {
-                connections.push(Connection{x0: x, y0: y, x1: x + 1, y1: y, closed: true});
+                connections.push(Connection {
+                    x0: x,
+                    y0: y,
+                    x1: x + 1,
+                    y1: y,
+                    closed: true,
+                });
             }
 
             if y < MATRIX_HEIGHT - 1 {
-                connections.push(Connection{x0: x, y0: y, x1: x, y1: y + 1, closed: true});
+                connections.push(Connection {
+                    x0: x,
+                    y0: y,
+                    x1: x,
+                    y1: y + 1,
+                    closed: true,
+                });
             }
         }
     }
