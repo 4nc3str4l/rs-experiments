@@ -1,11 +1,10 @@
 # Maze Generator:
 
-The following code allows you to create random maze using the [https://en.wikipedia.org/wiki/Maze_generation_algorithm#Randomized_Kruskal's_algorithm](Kruskal Algorithm)
+The following code allows you to create random maze using the [Kruskal Algorithm](https://en.wikipedia.org/wiki/Maze_generation_algorithm#Randomized_Kruskal's_algorithm)
 
 You can change the following parameters:
 
 ```rust
-
 // Dimensions of the window (application)
 const WINDOW_WIDTH: f32 = 640.;
 const WINDOW_HEIGHT: f32 = 640.;
@@ -21,4 +20,8 @@ const WALL_WIDTH: f32 = 2.0;
 
 The algorithm produces the following results:
 
+20x20 maze
+![20x20](http://url/to/img.png)
 
+40x40 maze
+![40x40](http://url/to/img.png)
