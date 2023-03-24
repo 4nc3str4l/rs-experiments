@@ -20,10 +20,12 @@ const WALL_WIDTH: f32 = 2.0;
 
 The algorithm produces the following results:
 
-20x20 maze
+### 20x20 maze
+
 ![20x20](https://github.com/4nc3str4l/rust-experiments/blob/main/maze-generator/resources/20_20.PNG?raw=true)
 
-40x40 maze
+### 40x40 maze
+
 ![40x40](https://github.com/4nc3str4l/rust-experiments/blob/main/maze-generator/resources/40_40.PNG?raw=true)
 
 
