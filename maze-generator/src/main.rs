@@ -1,63 +1,27 @@
 //! Shows how to render simple primitive shapes with a single color.
 
+mod maze_cell;
+mod connection;
+
 use bevy::{prelude::*, sprite::MaterialMesh2dBundle, window::PresentMode};
+use connection::Connection;
+use maze_cell::MazeCell;
 use rand::seq::SliceRandom;
 
 const WINDOW_WIDTH: f32 = 640.;
 const WINDOW_HEIGHT: f32 = 640.;
 
-const MATRIX_WIDTH: usize = 15;
-const MATRIX_HEIGHT: usize = 15;
+const MATRIX_WIDTH: usize = 40;
+const MATRIX_HEIGHT: usize = 40;
 
-const WALL_WIDTH: f32 = 4.0;
-
-struct MazeCell {
-    x: usize,
-    y: usize,
-    n_wall: bool,
-    w_wall: bool,
-    s_wall: bool,
-    e_wall: bool
-}
-
-impl MazeCell {
-    
-    fn new(x: usize, y: usize) -> Self {
-        Self {x, y, n_wall: true, w_wall: true, s_wall: true, e_wall: true}
-    }
-
-    fn process_connection(&mut self, connection: &(((usize, usize), (usize, usize)), bool)) {
-        let mut other = (0 as usize, 0 as usize);
-        if connection.0.0.0 == self.x && connection.0.0.1 == self.y {
-            other = (connection.0.1.0, connection.0.1.1);
-        } else {
-            other = (connection.0.0.0, connection.0.0.1);
-        }
-        if self.x == other.0 {
-            if self.y > other.1 {
-                self.s_wall = false;
-            }
-            else {
-                self.n_wall = false;
-            }
-        }
-        else {
-            if self.x > other.0 {
-                self.e_wall = false;
-            }
-            else {
-                self.w_wall = false;
-            }
-        }
-    }
-}
+const WALL_WIDTH: f32 = 2.0;
 
 fn main() {
     App::new()
         .add_plugins(DefaultPlugins.set(WindowPlugin {
             primary_window: Some(Window {
                 title: "Maze Generator".into(),
-                resolution: (640., 640.).into(),
+                resolution: (WINDOW_WIDTH, WINDOW_HEIGHT).into(),
                 present_mode: PresentMode::AutoNoVsync,
                 ..default()
             }),
@@ -141,11 +105,10 @@ fn setup(
                 ..default()
             });
         }
-        
     }
 }
 
-fn construct_cells(connections: &Vec<(((usize, usize), (usize, usize)), bool)>) -> Vec<MazeCell> {
+fn construct_cells(connections: &Vec<Connection>) -> Vec<MazeCell> {
     let mut to_return = Vec::with_capacity(MATRIX_WIDTH * MATRIX_HEIGHT);
     for y in 0..MATRIX_HEIGHT {
         for x in 0..MATRIX_WIDTH {
@@ -153,17 +116,17 @@ fn construct_cells(connections: &Vec<(((usize, usize), (usize, usize)), bool)>) 
         }
     }
     for c in connections {
-        if !c.1 {
-            to_return[xy_to_idx(c.0.0.0, c.0.0.1)].process_connection(c);
-            to_return[xy_to_idx(c.0.1.0, c.0.1.1)].process_connection(c);
+        if !c.closed {
+            to_return[xy_to_idx(c.x0, c.y0)].process_connection(c);
+            to_return[xy_to_idx(c.x1, c.y1)].process_connection(c);
         }
     }
     to_return
 }
 
-fn get_connections() -> Vec<(((usize, usize), (usize, usize)), bool)> {
+fn get_connections() -> Vec<Connection> {
     let mut data = Vec::with_capacity(MATRIX_HEIGHT * MATRIX_WIDTH);
-    let mut connections: Vec<(((usize, usize), (usize, usize)), bool)> =
+    let mut connections: Vec<Connection> =
         Vec::with_capacity(data.capacity() * 2);
     for y in 0..MATRIX_HEIGHT {
         for x in 0..MATRIX_WIDTH {
@@ -171,27 +134,26 @@ fn get_connections() -> Vec<(((usize, usize), (usize, usize)), bool)> {
             data.push(current_idx);
 
             if x < MATRIX_WIDTH - 1 {
-                connections.push((((x, y), (x + 1, y)), true));
+                connections.push(Connection{x0: x, y0: y, x1: x + 1, y1: y, closed: true});
             }
 
             if y < MATRIX_HEIGHT - 1 {
-                connections.push((((x, y), (x, y + 1)), true));
+                connections.push(Connection{x0: x, y0: y, x1: x, y1: y + 1, closed: true});
             }
         }
     }
 
     // Merge the adjacency list
     connections.shuffle(&mut rand::thread_rng());
-    println!("{:?}", &data);
 
     while !all_connected(&data) {
         for conn in connections.iter_mut() {
-            let el1 = xy_to_idx(conn.0 .0 .0, conn.0 .0 .1);
-            let el2 = xy_to_idx(conn.0 .1 .0, conn.0 .1 .1);
+            let el1 = xy_to_idx(conn.x0, conn.y0);
+            let el2 = xy_to_idx(conn.x1, conn.y1);
             let v1 = *data.get(el1).unwrap();
             let v2 = *data.get(el2).unwrap();
             if v1 != v2 {
-                conn.1 = false;
+                conn.closed = false;
                 replace_all(data.as_mut(), v2, v1);
             }
             if all_connected(&data) {
@@ -214,7 +176,7 @@ fn all_connected(matrix: &[usize]) -> bool {
     true
 }
 
-fn replace_all(matrix: &mut Vec<usize>, n: usize, to: usize) {
+fn replace_all(matrix: &mut [usize], n: usize, to: usize) {
     for el in matrix.iter_mut() {
         if *el == n {
             *el = to;
@@ -222,6 +184,7 @@ fn replace_all(matrix: &mut Vec<usize>, n: usize, to: usize) {
     }
 }
 
+#[inline]
 fn xy_to_idx(x: usize, y: usize) -> usize {
     x + y * MATRIX_WIDTH
 }
