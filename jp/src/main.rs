@@ -22,6 +22,8 @@ fn main() {
     let taget_dir = &args[1];
     let desktop = get_desktop_folder();
 
+    println!("Searching for {} in {}...", taget_dir, desktop);
+
     for dir in WalkDir::new(desktop).into_iter().filter_map(|e| e.ok()) {
         if dir.file_type().is_dir() {
             if dir.file_name().to_str().unwrap() == taget_dir {
@@ -29,7 +31,10 @@ fn main() {
                 let mut cmd = std::process::Command::new(VSCODE_LOCATION);
                 cmd.arg(dir.path());
                 cmd.spawn().expect("Failed to open vscode");
+                println!("Done!");
+                return;
             }
         }
     }
+    println!("Folder not found!");
 }
