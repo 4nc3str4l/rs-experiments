@@ -24,6 +24,8 @@ fn main() {
 
     println!("Searching for {} in {}...", taget_dir, desktop);
 
+    let mut possible_dirs: Vec<String> = Vec::new();
+
     for dir in WalkDir::new(desktop).into_iter().filter_map(|e| e.ok()) {
         if dir.file_type().is_dir() {
             if dir.file_name().to_str().unwrap() == taget_dir {
@@ -33,8 +35,16 @@ fn main() {
                 cmd.spawn().expect("Failed to open vscode");
                 println!("Done!");
                 return;
+            } else if dir.file_name().to_str().unwrap().contains(taget_dir) {
+                possible_dirs.push(dir.path().display().to_string());
             }
         }
     }
     println!("Folder not found!");
+    if possible_dirs.len() > 0 {
+        println!("Possible matches:");
+        for dir in possible_dirs {
+            println!("{}", dir);
+        }
+    }
 }
