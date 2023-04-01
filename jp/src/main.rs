@@ -1,13 +1,18 @@
 use std::env;
+use std::sync::{Arc, Mutex};
 
+use rayon::prelude::*;
 use walkdir::WalkDir;
-use winreg::{RegKey, enums::HKEY_CURRENT_USER};
+use winreg::{enums::HKEY_CURRENT_USER, RegKey};
 
-const VSCODE_LOCATION: &str = "C:\\Users\\cmuri\\AppData\\Local\\Programs\\Microsoft VS Code\\Code.exe";
+const VSCODE_LOCATION: &str =
+    "C:\\Users\\cmuri\\AppData\\Local\\Programs\\Microsoft VS Code\\Code.exe";
 
 fn get_desktop_folder() -> String {
     let mut key = RegKey::predef(HKEY_CURRENT_USER);
-    key = key.open_subkey(r"Software\Microsoft\Windows\CurrentVersion\Explorer\Shell Folders").unwrap();
+    key = key
+        .open_subkey(r"Software\Microsoft\Windows\CurrentVersion\Explorer\Shell Folders")
+        .unwrap();
     let desktop: String = key.get_value("Desktop").unwrap();
     desktop
 }
@@ -19,32 +24,50 @@ fn main() {
         println!("Usage: {} <folder>", args[0]);
         return;
     }
-    let taget_dir = &args[1];
+    let target_dir = args[1].to_lowercase();
     let desktop = get_desktop_folder();
 
-    println!("Searching for {} in {}...", taget_dir, desktop);
+    println!("Searching for {} in {}...", target_dir, desktop);
 
-    let mut possible_dirs: Vec<String> = Vec::new();
+    let possible_dirs: Arc<Mutex<Vec<String>>> = Arc::new(Mutex::new(Vec::new()));
+    let found_dir = Arc::new(Mutex::new(None));
 
-    for dir in WalkDir::new(desktop).into_iter().filter_map(|e| e.ok()) {
-        if dir.file_type().is_dir() {
-            if dir.file_name().to_str().unwrap() == taget_dir {
-                println!("{}", dir.path().display());
-                let mut cmd = std::process::Command::new(VSCODE_LOCATION);
-                cmd.arg(dir.path());
-                cmd.spawn().expect("Failed to open vscode");
-                println!("Done!");
-                return;
-            } else if dir.file_name().to_str().unwrap().contains(taget_dir) {
-                possible_dirs.push(dir.path().display().to_string());
+    WalkDir::new(desktop)
+        .into_iter()
+        .filter_map(Result::ok)
+        .collect::<Vec<_>>()
+        .par_iter()
+        .find_first(|dir| {
+            if dir.file_type().is_dir() {
+                let file_name = dir.file_name().to_str().unwrap().to_lowercase();
+                if file_name == target_dir {
+                    let mut found_dir = found_dir.lock().unwrap();
+                    *found_dir = Some(dir.path().to_path_buf());
+                    return true;
+                } else if file_name.contains(&target_dir) {
+                    let mut possible_dirs = possible_dirs.lock().unwrap();
+                    possible_dirs.push(dir.path().display().to_string());
+                }
             }
-        }
-    }
-    println!("Folder not found!");
-    if possible_dirs.len() > 0 {
-        println!("Possible matches:");
-        for dir in possible_dirs {
-            println!("{}", dir);
+            false
+        });
+
+    let found_dir_locked = found_dir.lock().unwrap();
+    if let Some(ref found_dir) = *found_dir_locked {
+        println!("{}", found_dir.display());
+        let mut cmd = std::process::Command::new(VSCODE_LOCATION);
+        cmd.arg(found_dir);
+        cmd.spawn().expect("Failed to open vscode");
+        println!("Done!");
+    } else {
+        drop(found_dir_locked);
+        println!("Folder not found!");
+        let possible_dirs = possible_dirs.lock().unwrap();
+        if !possible_dirs.is_empty() {
+            println!("Possible matches:");
+            for dir in &*possible_dirs {
+                println!("{}", dir);
+            }
         }
     }
 }
