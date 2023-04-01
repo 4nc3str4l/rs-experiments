@@ -2,6 +2,7 @@ use std::env;
 use std::sync::{Arc, Mutex};
 
 use rayon::prelude::*;
+use strsim::jaro_winkler;
 use walkdir::WalkDir;
 use winreg::{enums::HKEY_CURRENT_USER, RegKey};
 
@@ -29,7 +30,7 @@ fn main() {
 
     println!("Searching for {} in {}...", target_dir, desktop);
 
-    let possible_dirs: Arc<Mutex<Vec<String>>> = Arc::new(Mutex::new(Vec::new()));
+    let possible_dirs: Arc<Mutex<Vec<(String, f64)>>> = Arc::new(Mutex::new(Vec::new()));
     let found_dir = Arc::new(Mutex::new(None));
 
     WalkDir::new(desktop)
@@ -40,13 +41,14 @@ fn main() {
         .find_first(|dir| {
             if dir.file_type().is_dir() {
                 let file_name = dir.file_name().to_str().unwrap().to_lowercase();
-                if file_name == target_dir {
+                let distance = jaro_winkler(&file_name, &target_dir);
+                if (distance - 1.0).abs() < f64::EPSILON {
                     let mut found_dir = found_dir.lock().unwrap();
                     *found_dir = Some(dir.path().to_path_buf());
                     return true;
-                } else if file_name.contains(&target_dir) {
+                } else {
                     let mut possible_dirs = possible_dirs.lock().unwrap();
-                    possible_dirs.push(dir.path().display().to_string());
+                    possible_dirs.push((dir.path().display().to_string(), distance));
                 }
             }
             false
@@ -62,10 +64,11 @@ fn main() {
     } else {
         drop(found_dir_locked);
         println!("Folder not found!");
-        let possible_dirs = possible_dirs.lock().unwrap();
+        let mut possible_dirs = possible_dirs.lock().unwrap();
         if !possible_dirs.is_empty() {
-            println!("Possible matches:");
-            for dir in &*possible_dirs {
+            println!("Did you mean:");
+            possible_dirs.sort_by(|a, b| a.1.partial_cmp(&b.1).unwrap());
+            for (dir, _) in possible_dirs.iter().rev().take(20) {
                 println!("{}", dir);
             }
         }
