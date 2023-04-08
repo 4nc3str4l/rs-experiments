@@ -1,24 +1,22 @@
+mod cache;
+
 use std::env;
+use std::path::PathBuf;
 use std::sync::{Arc, Mutex};
 
+use dirs_next::data_local_dir;
 use rayon::prelude::*;
 use strsim::jaro_winkler;
 use walkdir::WalkDir;
 use winreg::{enums::HKEY_CURRENT_USER, RegKey};
 
-const VSCODE_LOCATION: &str =
-    "C:\\Users\\cmuri\\AppData\\Local\\Programs\\Microsoft VS Code\\Code.exe";
+use crate::cache::Cache;
 
-fn get_desktop_folder() -> String {
-    let mut key = RegKey::predef(HKEY_CURRENT_USER);
-    key = key
-        .open_subkey(r"Software\Microsoft\Windows\CurrentVersion\Explorer\Shell Folders")
-        .unwrap();
-    let desktop: String = key.get_value("Desktop").unwrap();
-    desktop
-}
 
 fn main() {
+
+    let mut cache: Cache = Cache::new().unwrap();
+
     let args: Vec<String> = env::args().collect();
     println!("{:?}", args);
     if args.len() < 2 {
@@ -27,6 +25,12 @@ fn main() {
     }
     let target_dir = args[1].to_lowercase();
     let desktop = get_desktop_folder();
+
+    if let Some(c) =  cache.get(&target_dir) {
+        println!("Found in cache: {}", c);
+        open_vs_code_folder(  &c  );
+        return;
+    }
 
     println!("Searching for {} in {}...", target_dir, desktop);
 
@@ -56,11 +60,8 @@ fn main() {
 
     let found_dir_locked = found_dir.lock().unwrap();
     if let Some(ref found_dir) = *found_dir_locked {
-        println!("{}", found_dir.display());
-        let mut cmd = std::process::Command::new(VSCODE_LOCATION);
-        cmd.arg(found_dir);
-        cmd.spawn().expect("Failed to open vscode");
-        println!("Done!");
+        open_vs_code_folder(found_dir.to_str().unwrap());
+        let _= cache.store(&target_dir, found_dir.to_str().unwrap());
     } else {
         drop(found_dir_locked);
         println!("Folder not found!");
@@ -73,4 +74,36 @@ fn main() {
             }
         }
     }
+}
+
+
+fn open_vs_code_folder(found_dir: &str) {
+    println!("{}", found_dir);
+    let mut cmd = std::process::Command::new(get_vscode_location().unwrap().to_str().unwrap());
+    cmd.arg(found_dir);
+    cmd.spawn().expect("Failed to open vscode");
+    println!("Done!");
+}
+
+fn get_vscode_location() -> Option<PathBuf> {
+    let mut vscode_path = data_local_dir()?;
+
+    vscode_path.push("Programs");
+    vscode_path.push("Microsoft VS Code");
+    vscode_path.push("Code.exe");
+
+    if vscode_path.exists() {
+        Some(vscode_path)
+    } else {
+        None
+    }
+}
+
+fn get_desktop_folder() -> String {
+    let mut key = RegKey::predef(HKEY_CURRENT_USER);
+    key = key
+        .open_subkey(r"Software\Microsoft\Windows\CurrentVersion\Explorer\Shell Folders")
+        .unwrap();
+    let desktop: String = key.get_value("Desktop").unwrap();
+    desktop
 }
