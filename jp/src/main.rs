@@ -4,10 +4,12 @@ use std::env;
 use std::path::PathBuf;
 use std::sync::{Arc, Mutex};
 
-use dirs_next::data_local_dir;
 use rayon::prelude::*;
 use strsim::jaro_winkler;
 use walkdir::WalkDir;
+use dirs_next::data_local_dir;
+
+#[cfg(windows)]
 use winreg::{enums::HKEY_CURRENT_USER, RegKey};
 
 use crate::cache::Cache;
@@ -86,19 +88,31 @@ fn open_vs_code_folder(found_dir: &str) {
 }
 
 fn get_vscode_location() -> Option<PathBuf> {
-    let mut vscode_path = data_local_dir()?;
+    #[cfg(windows)]
+    {
+        let mut vscode_path = data_local_dir()?;
 
-    vscode_path.push("Programs");
-    vscode_path.push("Microsoft VS Code");
-    vscode_path.push("Code.exe");
+        vscode_path.push("Programs");
+        vscode_path.push("Microsoft VS Code");
+        vscode_path.push("Code.exe");
 
-    if vscode_path.exists() {
-        Some(vscode_path)
-    } else {
-        None
+        if vscode_path.exists() {
+            return Some(vscode_path);
+        }
     }
+
+    #[cfg(not(windows))]
+    {
+        let vscode_path = PathBuf::from("/usr/bin/code");
+        if vscode_path.exists() {
+            return Some(vscode_path);
+        }
+    }
+
+    None
 }
 
+#[cfg(windows)]
 fn get_desktop_folder() -> String {
     let mut key = RegKey::predef(HKEY_CURRENT_USER);
     key = key
@@ -106,4 +120,10 @@ fn get_desktop_folder() -> String {
         .unwrap();
     let desktop: String = key.get_value("Desktop").unwrap();
     desktop
+}
+
+#[cfg(not(windows))]
+fn get_desktop_folder() -> String {
+    let mut home_dir = dirs_next::home_dir().unwrap();
+    home_dir.to_str().unwrap().to_owned()
 }
